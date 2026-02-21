@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Order Hosting · Komik Neon</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- QR Code library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Neue', 'Segoe UI', cursive, sans-serif;
+        }
+
+        body {
+            background: #0b0c1a;
+            background-image: radial-gradient(circle at 20% 30%, #2a1b3c 0%, #0b0c1a 80%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+        }
+
+        /* NAVBAR dengan ikon titik tiga */
+        .navbar {
+            width: 100%;
+            background: rgba(10, 5, 20, 0.9);
+            backdrop-filter: blur(5px);
+            border-bottom: 2px solid cyan;
+            box-shadow: 0 0 15px magenta;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffe600;
+            text-shadow: 0 0 8px #ffae00;
+        }
+
+        /* Ikon titik tiga */
+        .menu-icon {
+            font-size: 2.2rem;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 50%;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .menu-icon:hover {
+            border-color: #ff00c8;
+            box-shadow: 0 0 15px #ff00c8;
+            background: rgba(255, 0, 200, 0.2);
+        }
+
+        /* Dropdown menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 70px;
+            right: 30px;
+            background: #1a1035;
+            border: 3px solid #0ff;
+            border-radius: 20px 5px 20px 5px;
+            box-shadow: 0 0 30px magenta, 5px 5px 0 #ff0;
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            z-index: 200;
+            overflow: hidden;
+        }
+
+        .dropdown-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            font-size: 1.3rem;
+            border-bottom: 2px dashed #ff00c8;
+            transition: 0.2s;
+            text-align: left;
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-menu a:hover {
+            background: #33004e;
+            box-shadow: inset 0 0 15px cyan;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+            flex: 1;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            margin: 20px 0 30px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #ffe600;
+            text-shadow: 0 0 8px #ffae00, 0 0 15px #ff5100, 2px 2px 0 #00ffff;
+            letter-spacing: 2px;
+            transform: rotate(-1deg);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            background: #1e1333;
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 40px;
+            border: 2px solid #f0f;
+            box-shadow: 0 0 15px magenta;
+            color: #fff;
+            margin-top: -10px;
+        }
+
+        /* PRODUK GRID 2 KOLOM */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .product-card {
+            background: #1c1a2e;
+            border: 3px solid #ffcc00;
+            border-radius: 20px 5px 20px 5px;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: 0 0 20px #ff9900, 5px 5px 0 #00ffff;
+            transition: 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 0 0 30px #ffae00, 8px 8px 0 #ff00c8;
+        }
+
+        .product-card h3 {
+            font-size: 2rem;
+            color: #f0f;
+            text-shadow: 0 0 8px cyan;
+            margin-bottom: 8px;
+        }
+
+        .product-card .price {
+            font-size: 2rem;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            border-radius: 40px;
+            border: 2px dashed #0ff;
+            margin: 10px 0;
+        }
+
+        .product-card ul {
+            list-style: none;
+            margin: 10px 0;
+            font-size: 1rem;
+            color: #b0ffb0;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .product-card li::before {
+            content: "🦸‍♂️ ";
+            margin-right: 5px;
+        }
+
+        .btn-order {
+            background: #ffde00;
+            border: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 15px #ffae00, 3px 3px 0 #0011ff;
+            color: #1b0033;
+            transition: 0.1s;
+            border: 2px solid #fff;
+            margin-top: auto;
+        }
+
+        .btn-order:hover {
+            background: #ff9900;
+            box-shadow: 0 0 25px red;
+            transform: scale(0.98);
+        }
+
+        /* ORDER PANEL MINIMALIS */
+        .order-panel {
+            background: #1f1a2e;
+            border: 3px solid #0ff;
+            border-radius: 30px 10px 30px 10px;
+            padding: 25px;
+            margin: 30px auto;
+            max-width: 550px;
+            box-shadow: 0 0 30px magenta, 5px 5px 0 #ff0;
+            display: none;
+        }
+
+        .order-panel.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .order-panel h2 {
+            font-size: 2rem;
+            color: #ffde00;
+            text-shadow: 0 0 8px #ff7b00;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+            color: #acffac;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 1.1rem;
+            background: #2a1d3b;
+            border: 2px solid #ffb700;
+            border-radius: 40px;
+            color: #fff;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #ff00d4;
+            box-shadow: 0 0 15px magenta;
+        }
+
+        .payment-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+            justify-content: center;
+        }
+
+        .payment-option {
+            background: #2a1d3b;
+            border: 2px solid #888;
+            border-radius: 50px;
+            padding: 8px 18px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #ccc;
+        }
+
+        .payment-option.selected {
+            border-color: #0ff;
+            background: #3a2b55;
+            color: #fff;
+            box-shadow: 0 0 15px cyan;
+        }
+
+        .payment-detail {
+            background: #1a1028;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px dashed #0ff;
+            text-align: center;
+        }
+
+        #qrcode-container {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        #qrcode-container canvas {
+            border: 4px solid #ffe600;
+            border-radius: 15px;
+            max-width: 180px;
+            height: auto;
+        }
+
+        .btn-pay {
+            background: #44ff00;
+            border: none;
+            font-size: 1.6rem;
+            padding: 10px 25px;
+            border-radius: 60px;
+            font-weight: bold;
+            color: #12004e;
+            box-shadow: 0 0 20px #aeff00, 3px 3px 0 #ff00bb;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+
+        .btn-pay:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0 0 30px #00ff88;
+        }
+
+        /* FOOTER SOSIAL MEDIA */
+        footer {
+            width: 100%;
+            background: #0d0620;
+            border-top: 3px solid cyan;
+            box-shadow: 0 -5px 20px #f0f;
+            padding: 25px 0 20px;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .social-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: #1a1035;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 15px #ff00c8, 0 5px 0 #3700ff;
+            transition: 0.15s;
+            color: white;
+            font-size: 2rem;
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-10px) scale(1.1);
+            box-shadow: 0 0 30px #00f7ff, 0 8px 0 #ff00aa;
+            border-color: #ffde00;
+            background: #33004e;
+        }
+
+        .social-icon .fa-whatsapp { color: #25D366; }
+        .social-icon .fa-telegram { color: #0088cc; }
+        .social-icon .fa-youtube { color: #FF0000; }
+        .social-icon .fa-github { color: #fff; }
+
+        footer p {
+            margin-top: 20px;
+            color: #aaffaa;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .product-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.8rem; }
+            .navbar { padding: 12px 20px; }
+            .dropdown-menu { right: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR dengan ikon titik tiga -->
+    <nav class="navbar">
+        <div class="logo">Vel Code Official</div>
+        <div class="menu-icon" onclick="toggleMenu()">
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        <!-- Dropdown menu -->
+        <div id="dropdownMenu" class="dropdown-menu">
+            <a href="dash.html">Dashboard</a>
+            <a href="porto.html">Portofolio</a>
+            <a href="panel.html">Panel</a>
+            <a href="script.html">Script</a>
+            <a href="vps.html">VPS</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Vel Code Panel</h1>
+            <div class="subtitle">Order Panel Termurah dan Terjamin</div>
+        </header>
+
+        <!-- Produk 2 kolom -->
+        <div class="product-grid">
+            <div class="product-card" data-product="Paket Dasar" data-price="10000">
+                <h3>Paket Dasar</h3>
+                <div class="price">Rp10k</div>
+                <ul>
+                    <li>5 GB RAM</li>
+                    <li>CPU 1,2 Core</li>
+                    <li>8 GB SSD</li>
+                </ul>
+                <button class="btn-order" onclick="selectProduct('Paket Dasar', 10000)">ORDER ➔</button>
+            </div>
+            <div class="product-card" data-product="Paket Standar" data-price="20000">
+                <h3>Paket Standar</h3>
+                <div class="price">Rp20k</div>
+                <ul>
+                    <li>6 GB RAM</li>
+                    <li>CPU 1,5 Core</li>
+                    <li>10 GB SSD</li>
+                    <li></li>
+                    <li>3 Domain</li>
+                </ul>
+                <button class="btn-order" onclick="selectProduct('Paket Standar', 20000)">ORDER ➔</button>
+            </div>
+            <div class="product-card" data-product="Paket Lanjutan" data-price="30000">
+                <h3>Paket Lanjutan</h3>
+                <div class="price">Rp30k</div>
+                <ul>
+                    <li>8 GB RAM</li>
+                    <li>CPU 2 Core</li>
+                    <li>15 GB SSD</li>
+                </ul>
+                <button class="btn-order" onclick="selectProduct('Paket Lanjutan', 30000)">ORDER ➔</button>
+            </div>
+        </div>
+
+        <!-- Panel Order -->
+        <div id="orderPanel" class="order-panel">
+            <h2 id="selectedProductTitle">Pilih Produk</h2>
+            <form id="orderForm" onsubmit="event.preventDefault();">
+                <div class="form-group">
+                    <label>Nama Pembeli</label>
+                    <input type="text" id="nama" placeholder="nama akun payment" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="emailkamu@email.com" required>
+                </div>
+                <!-- Pilihan Metode Pembayaran -->
+                <div style="margin: 20px 0 10px; text-align: left;">
+                    <label style="font-size: 1.2rem; color:#acffac;">Pilih Metode Pembayaran:</label>
+                </div>
+                <div class="payment-options">
+                    <div class="payment-option selected" data-method="qris" onclick="selectPaymentMethod('qris', this)">QRIS</div>
+                    <div class="payment-option" data-method="dana" onclick="selectPaymentMethod('dana', this)">DANA</div>
+                    <div class="payment-option" data-method="gopay" onclick="selectPaymentMethod('gopay', this)">GOPAY</div>
+                    <div class="payment-option" data-method="ovo" onclick="selectPaymentMethod('ovo', this)">OVO</div>
+                </div>
+
+                <!-- Detail pembayaran dinamis -->
+                <div id="paymentDetail" class="payment-detail">
+                    <!-- akan diisi JS -->
+                </div>
+
+                <button type="button" class="btn-pay" onclick="processOrder()">KONFIRMASI</button>
+            </form>
+            <p id="orderMessage" style="font-size: 1.2rem; color: #ff0; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="social-container">
+            <a href="https://wa.me/6285262225146?text=Halo%20saya%20tertarik%20hosting" target="_blank" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://t.me/@ChrizzCdrVx" target="_blank" class="social-icon"><i class="fab fa-telegram"></i></a>
+            <a href="https://youtube.com/c/channel" target="_blank" class="social-icon"><i class="fab fa-youtube"></i></a>
+            <a href="https://github.com/username" target="_blank" class="social-icon"><i class="fab fa-github"></i></a>
+        </div>
+        <p>Created With Love By Vel Code Official</p>
+    </footer>
+
+    <script>
+        let selectedProduct = '', selectedPrice = 0;
+        let currentMethod = 'qris';
+        let orderData = {};
+
+        // Fungsi toggle menu dropdown
+        function toggleMenu() {
+            document.getElementById('dropdownMenu').classList.toggle('show');
+        }
+
+        // Tutup dropdown jika klik di luar (opsional)
+        window.onclick = function(event) {
+            if (!event.target.matches('.menu-icon') && !event.target.closest('.menu-icon')) {
+                var dropdown = document.getElementById('dropdownMenu');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        function selectProduct(product, price) {
+            selectedProduct = product;
+            selectedPrice = price;
+            document.getElementById('selectedProductTitle').innerText = product + ' - Rp' + price.toLocaleString('id-ID');
+            document.getElementById('orderPanel').classList.add('active');
+            // Reset ke metode QRIS
+            setPaymentMethod('qris');
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if(opt.getAttribute('data-method') === 'qris') opt.classList.add('selected');
+            });
+            updatePaymentDetail();
+            document.getElementById('orderPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function selectPaymentMethod(method, el) {
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            setPaymentMethod(method);
+            updatePaymentDetail();
+        }
+
+        function setPaymentMethod(method) {
+            currentMethod = method;
+        }
+
+        function updatePaymentDetail() {
+            const detailDiv = document.getElementById('paymentDetail');
+            const price = selectedPrice || 0;
+            if (!selectedProduct) {
+                detailDiv.innerHTML = '<p style="color:#ffaa00;">Pilih produk terlebih dahulu.</p>';
+                return;
+            }
+
+            if (currentMethod === 'qris') {
+                const transactionId = 'TRX-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+                orderData.transaction = transactionId;
+                const qrisData = `ID${transactionId}*AMOUNT${price}*PROD${selectedProduct}`;
+                detailDiv.innerHTML = `
+                    <div style="font-size:1.4rem; color:#f0f;">🔮 QRIS</div>
+                    <div id="qrcode-container"></div>
+                    <p style="margin-top:8px;">Scan QRIS untuk pembayaran</p>
+                    <p><strong>Total: Rp${price.toLocaleString('id-ID')}</strong></p>
+                `;
+                setTimeout(() => {
+                    const container = document.getElementById('qrcode-container');
+                    if (container) {
+                        container.innerHTML = '';
+                        QRCode.toCanvas(qrisData, { width: 170, margin: 1 }, (err, canvas) => {
+                            if (err) container.innerHTML = '<p>Gagal generate QR</p>';
+                            else container.appendChild(canvas);
+                        });
+                    }
+                }, 50);
+            } else {
+                let instructions = '';
+                if (currentMethod === 'dana') instructions = '💰 DANA: 085262225146 a.n. Vel Code Official';
+                else if (currentMethod === 'gopay') instructions = '📱 GOPAY: 085262225146 a.n. Vel Code Official';
+                else if (currentMethod === 'ovo') instructions = '🟣 OVO: 085262225146 a.n. Vel Code Official';
+                
+                detailDiv.innerHTML = `
+                    <div style="font-size:1.4rem; color:#0ff;">${currentMethod.toUpperCase()}</div>
+                    <p style="background:#2a1d3b; padding:10px; border-radius:40px;">${instructions}</p>
+                    <p>Transfer sebesar <strong>Rp${price.toLocaleString('id-ID')}</strong> ke nomor di atas.</p>
+                    <p style="font-size:0.9rem;">*Konfirmasi otomatis setelah pembayaran (simulasi)</p>
+                `;
+            }
+        }
+
+        function processOrder() {
+            const nama = document.getElementById('nama').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const domain = document.getElementById('domain').value.trim() || '-';
+
+            if (!nama || !email) {
+                alert('Nama dan Email harus diisi!');
+                return;
+            }
+            if (!selectedProduct) {
+                alert('Pilih produk terlebih dahulu.');
+                return;
+            }
+
+            orderData = {
+                ...orderData,
+                product: selectedProduct,
+                price: selectedPrice,
+                nama: nama,
+                email: email,
+                domain: domain,
+                metode: currentMethod.toUpperCase(),
+                waktu: new Date().toLocaleString('id-ID')
+            };
+
+            document.getElementById('orderMessage').innerHTML = '⏳ Memproses...';
+            sendNotificationToBot(orderData);
+
+            setTimeout(() => {
+                document.getElementById('orderMessage').innerHTML = '✅ Pesanan diterima! Silakan selesaikan pembayaran. Notifikasi telah dikirim ke pemilik.';
+            }, 1000);
+        }
+
+        function sendNotificationToBot(data) {
+            const waWebhookUrl = 'https://api.wabot.com/sendMessage?api_key=DUMMY'; // Ganti dengan URL bot WhatsApp Anda
+            const telegramWebhookUrl = 'https://api.telegram.org/bot<TOKEN>/sendMessage'; // Ganti dengan token bot Telegram
+
+            const pesan = ` OBARUAN BARU ⚡\nProduk: ${data.product}\nHarga: Rp${data.price}\nNama: ${data.nama}\nEmail: ${data.email}\nDomain: ${data.domain}\nMetode: ${data.metode}\nWaktu: ${data.waktu}\nTrx: ${data.transaction || '-'}`;
+
+            console.log('Pesanan dikirim ke WhatsApp:', pesan);
+            console.log('Pesanan dikirim ke Telegram:', pesan);
+            // Aktifkan fetch jika endpoint tersedia
+        }
+
+        // Ekspos fungsi ke global
+        window.selectProduct = selectProduct;
+        window.selectPaymentMethod = selectPaymentMethod;
+        window.processOrder = processOrder;
+        window.toggleMenu = toggleMenu;
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700;800&display=swap" rel="stylesheet">
+</body>
+</html>file:///storage/emulated/0/webku/index.html
